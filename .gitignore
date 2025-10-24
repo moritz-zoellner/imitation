@@ -160,3 +160,6 @@ dmypy.json
 /quickstart/
 
 .vscode/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
