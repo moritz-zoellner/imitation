@@ -9,6 +9,7 @@ from flax import struct
 import gymnax
 from gymnax.environments.spaces import Discrete
 from gymnax.environments.environment import EnvState
+from gymnax.wrappers import FlattenObservationWrapper
 
 from .base import Env, BaseState, EvalMetrics
 
@@ -211,13 +212,17 @@ class GymnaxEnv(Env):
             info=state.info)
 
     def wrap_for_training(self, episode_length: int, action_repeat: int):
-        env = VmapWrapper(self)
+        wrapped_env_impl = FlattenObservationWrapper(self.env_impl)
+        env = GymnaxEnv(env_impl=wrapped_env_impl, env_params=self.env_params)
+        env = VmapWrapper(env)
         env = EpisodeWrapper(env, episode_length, action_repeat)
         env = AutoResetWrapper(env)
         return env
 
     def wrap_for_eval(self, episode_length: int, action_repeat: int):
-        env = VmapWrapper(self)
+        wrapped_env_impl = FlattenObservationWrapper(self.env_impl)
+        env = GymnaxEnv(env_impl=wrapped_env_impl, env_params=self.env_params)
+        env = VmapWrapper(env)
         env = EpisodeWrapper(env, episode_length, action_repeat)
         env = AutoResetWrapper(env)
         env = EvalWrapper(env)

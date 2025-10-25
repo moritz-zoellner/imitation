@@ -294,8 +294,7 @@ class DQN:
         rng = jax.random.PRNGKey(seed)
         rng, key = jax.random.split(rng)
         training_env = env.wrap_for_training(episode_length=self.episode_length, action_repeat=self.action_repeat)
-
-        obs_size = env.obs_size
+        obs_size = training_env.obs_size
 
         #
         # Q-NETWORK SET UP
