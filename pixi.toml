@@ -24,3 +24,5 @@ navix = ">=0.7.4, <0.8"
 warp-lang = ">=1.9.1, <2"
 mujoco = ">=3.3.7, <4"
 brax = ">=0.12.5, <0.13"
+minari = { version = ">=0.5.3, <0.6", extras = ["all"] }
+minigrid = ">=3.0.0, <4"
