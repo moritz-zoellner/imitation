@@ -258,7 +258,7 @@ class DQN:
     deterministic_eval: bool = True
     checkpoint_logdir: Optional[str] = None
 
-    def train_fn(self, *, num_timesteps, seed, env, progress_fn):
+    def train_fn(self, *, num_timesteps, seed, env, progress_fn, **_):
         """Q-Learning training"""
 
         process_id = jax.process_index()
