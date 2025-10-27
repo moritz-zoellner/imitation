@@ -461,54 +461,54 @@ class DQN:
         prefill_replay_buffer = jax.pmap(prefill_replay_buffer, axis_name=_PMAP_AXIS_NAME)
 
         def training_epoch(
-            training_state: TrainingState,
-            env_state: envs.State,
-            buffer_state: ReplayBufferState,
-            key: PRNGKey
+                training_state: TrainingState,
+                env_state: envs.State,
+                buffer_state: ReplayBufferState,
+                key: PRNGKey
         ) -> Tuple[TrainingState, envs.State, ReplayBufferState, Metrics]:
 
-          def f(carry, unused_t):
-            ts, es, bs, k = carry
-            k, new_key = jax.random.split(k)
-            ts, es, bs, metrics = training_step(ts, es, bs, k)
-            return (ts, es, bs, new_key), metrics
+            def f(carry, unused_t):
+                ts, es, bs, k = carry
+                k, new_key = jax.random.split(k)
+                ts, es, bs, metrics = training_step(ts, es, bs, k)
+                return (ts, es, bs, new_key), metrics
 
-          (training_state, env_state, buffer_state, key), metrics = jax.lax.scan(
-              f,
-              (training_state, env_state, buffer_state, key),
-              (),
-              length=num_training_steps_per_epoch
-          )
-          metrics = jax.tree_map(jnp.mean, metrics)
-          return training_state, env_state, buffer_state, metrics
+            (training_state, env_state, buffer_state, key), metrics = jax.lax.scan(
+                f,
+                (training_state, env_state, buffer_state, key),
+                (),
+                length=num_training_steps_per_epoch
+            )
+            metrics = jax.tree_map(jnp.mean, metrics)
+            return training_state, env_state, buffer_state, metrics
 
         training_epoch = jax.pmap(training_epoch, axis_name=_PMAP_AXIS_NAME)
 
         # Note that this is NOT a pure jittable method.
         def training_epoch_with_timing(
-            training_state: TrainingState,
-            env_state: envs.State,
-            buffer_state: ReplayBufferState,
-            key: PRNGKey
+                training_state: TrainingState,
+                env_state: envs.State,
+                buffer_state: ReplayBufferState,
+                key: PRNGKey
         ) -> Tuple[TrainingState, envs.State, ReplayBufferState, Metrics]:
-          nonlocal training_walltime
-          t = time.time()
-          (training_state, env_state, buffer_state, metrics) = training_epoch(
-            training_state, env_state, buffer_state, key
-          )
-          metrics = jax.tree_map(jnp.mean, metrics)
-          jax.tree_map(lambda x: x.block_until_ready(), metrics)
+            nonlocal training_walltime
+            t = time.time()
+            (training_state, env_state, buffer_state, metrics) = training_epoch(
+                training_state, env_state, buffer_state, key
+            )
+            metrics = jax.tree_map(jnp.mean, metrics)
+            jax.tree_map(lambda x: x.block_until_ready(), metrics)
 
-          epoch_training_time = time.time() - t
-          training_walltime += epoch_training_time
-          sps = (env_steps_per_actor_step *
-                 num_training_steps_per_epoch) / epoch_training_time
-          metrics = {
-              'training/sps': sps,
-              'training/walltime': training_walltime,
-              **{f'training/{name}': value for name, value in metrics.items()}
-          }
-          return training_state, env_state, buffer_state, metrics
+            epoch_training_time = time.time() - t
+            training_walltime += epoch_training_time
+            sps = (env_steps_per_actor_step *
+                   num_training_steps_per_epoch) / epoch_training_time
+            metrics = {
+                'training/sps': sps,
+                'training/walltime': training_walltime,
+                **{f'training/{name}': value for name, value in metrics.items()}
+            }
+            return training_state, env_state, buffer_state, metrics
 
         global_key, local_key = jax.random.split(jax.random.PRNGKey(seed))
         local_key = jax.random.fold_in(local_key, process_id)
@@ -544,11 +544,11 @@ class DQN:
 
         # Run initial eval
         if process_id == 0 and self.num_evals > 1:
-          metrics = evaluator.run_evaluation(
-              _unpmap((training_state.normalizer_params, training_state.q_params)),
-              training_metrics={})
-          logging.info(metrics)
-          progress_fn(0, metrics)
+            metrics = evaluator.run_evaluation(
+                _unpmap((training_state.normalizer_params, training_state.q_params)),
+                training_metrics={})
+            logging.info(metrics)
+            progress_fn(0, metrics)
 
         # Create and initialize the replay buffer.
         t = time.time()
@@ -565,28 +565,28 @@ class DQN:
 
         current_step = 0
         for _ in range(num_evals_after_init):
-          logging.info('step %s', current_step)
+            logging.info('step %s', current_step)
 
-          # Optimization
-          epoch_key, local_key = jax.random.split(local_key)
-          epoch_keys = jax.random.split(epoch_key, local_devices_to_use)
-          (training_state, env_state, buffer_state, training_metrics) = training_epoch_with_timing(
-            training_state, env_state, buffer_state, epoch_keys
-          )
-          current_step = int(_unpmap(training_state.env_steps))
+            # Optimization
+            epoch_key, local_key = jax.random.split(local_key)
+            epoch_keys = jax.random.split(epoch_key, local_devices_to_use)
+            (training_state, env_state, buffer_state, training_metrics) = training_epoch_with_timing(
+                training_state, env_state, buffer_state, epoch_keys
+            )
+            current_step = int(_unpmap(training_state.env_steps))
 
-          # Eval and logging
-          if process_id == 0:
-            if self.checkpoint_logdir:
-              # Save current policy.
-              params = _unpmap((training_state.normalizer_params, training_state.q_params))
-              path = f'{self.checkpoint_logdir}_dq_{current_step}.pkl'
-              model.save_params(path, params)
+            # Eval and logging
+            if process_id == 0:
+                if self.checkpoint_logdir:
+                    # Save current policy.
+                    params = _unpmap((training_state.normalizer_params, training_state.q_params))
+                    path = f'{self.checkpoint_logdir}_dq_{current_step}.pkl'
+                    model.save_params(path, params)
 
-            # Run evals.
-            metrics = evaluator.run_evaluation(_unpmap((training_state.normalizer_params, training_state.q_params)), training_metrics)
-            logging.info(metrics)
-            progress_fn(current_step, metrics)
+                # Run evals.
+                metrics = evaluator.run_evaluation(_unpmap((training_state.normalizer_params, training_state.q_params)), training_metrics)
+                logging.info(metrics)
+                progress_fn(current_step, metrics)
 
         total_steps = current_step
         assert total_steps >= num_timesteps
