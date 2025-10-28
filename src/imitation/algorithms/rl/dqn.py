@@ -24,8 +24,8 @@ from brax.training.types import PRNGKey
 import flax
 from flax import linen
 
-from imitation.environments import acting
-from imitation.environments.acting import Evaluator
+from imitation.environments import jax_acting as acting
+from imitation.environments.jax_acting import Evaluator
 
 
 
@@ -258,7 +258,25 @@ class DQN:
     deterministic_eval: bool = True
     checkpoint_logdir: Optional[str] = None
 
-    def train_fn(self, *, num_timesteps, seed, env, progress_fn, **_):
+    def get_make_policy_fn(self, *, env, **_):
+        training_env = env.wrap_for_training(episode_length=self.episode_length, action_repeat=self.action_repeat)
+        obs_size = training_env.obs_size
+
+        normalize_fn = lambda x, y: x
+        if self.normalize_observations:
+            normalize_fn = running_statistics.normalize
+
+        network_factory = make_dq_networks
+        dq_network = network_factory(
+            observation_size=obs_size,
+            n_actions=env.n_actions,
+            preprocess_observations_fn=normalize_fn,
+            hidden_layer_sizes=self.hidden_layer_sizes,
+        )
+        make_policy = get_make_policy_fn(dq_network, n_actions=env.n_actions)
+        return make_policy
+
+    def train_fn(self, *, run_config, env, progress_fn, **_):
         """Q-Learning training"""
 
         process_id = jax.process_index()
@@ -268,7 +286,7 @@ class DQN:
         # environments should be allocated evenly accross devices
         assert self.num_envs % device_count == 0
 
-        if self.min_replay_size >= num_timesteps:
+        if self.min_replay_size >= run_config.num_timesteps:
             raise ValueError('No training will happen because min_replay_size >= num_timesteps')
 
         # each actor step steps all environments
@@ -278,20 +296,20 @@ class DQN:
         # number of env steps necessary to fill replay buffer to minimum
         num_prefill_env_steps = num_prefill_actor_steps * env_steps_per_actor_step
 
-        if num_timesteps - num_prefill_env_steps <= 0:
+        if run_config.num_timesteps - num_prefill_env_steps <= 0:
             raise ValueError('No training will happen because min_replay_size will exhaust num_timesteps')
 
         num_evals_after_init = max(self.num_evals - 1, 1)
         num_training_steps_per_epoch = -(
             # divide remaining steps across epochs before each evaluation
-            -(num_timesteps - num_prefill_env_steps) // (num_evals_after_init * env_steps_per_actor_step)
+            -(run_config.num_timesteps - num_prefill_env_steps) // (num_evals_after_init * env_steps_per_actor_step)
         )
 
         #
         # ENV SET UP
         #
 
-        rng = jax.random.PRNGKey(seed)
+        rng = jax.random.PRNGKey(run_config.seed)
         rng, key = jax.random.split(rng)
         training_env = env.wrap_for_training(episode_length=self.episode_length, action_repeat=self.action_repeat)
         obs_size = training_env.obs_size
@@ -510,7 +528,7 @@ class DQN:
             }
             return training_state, env_state, buffer_state, metrics
 
-        global_key, local_key = jax.random.split(jax.random.PRNGKey(seed))
+        global_key, local_key = jax.random.split(jax.random.PRNGKey(run_config.seed))
         local_key = jax.random.fold_in(local_key, process_id)
 
         # Training state init
@@ -544,11 +562,10 @@ class DQN:
 
         # Run initial eval
         if process_id == 0 and self.num_evals > 1:
-            metrics = evaluator.run_evaluation(
-                _unpmap((training_state.normalizer_params, training_state.q_params)),
-                training_metrics={})
+            params = _unpmap((training_state.normalizer_params, training_state.q_params))
+            metrics = evaluator.run_evaluation(params, training_metrics={})
             logging.info(metrics)
-            progress_fn(0, metrics)
+            progress_fn(0, metrics, params=params)
 
         # Create and initialize the replay buffer.
         t = time.time()
@@ -577,19 +594,20 @@ class DQN:
 
             # Eval and logging
             if process_id == 0:
+                # Save current policy.
+                params = _unpmap((training_state.normalizer_params, training_state.q_params))
+
                 if self.checkpoint_logdir:
-                    # Save current policy.
-                    params = _unpmap((training_state.normalizer_params, training_state.q_params))
                     path = f'{self.checkpoint_logdir}_dq_{current_step}.pkl'
                     model.save_params(path, params)
 
                 # Run evals.
                 metrics = evaluator.run_evaluation(_unpmap((training_state.normalizer_params, training_state.q_params)), training_metrics)
                 logging.info(metrics)
-                progress_fn(current_step, metrics)
+                progress_fn(current_step, metrics, params=params)
 
         total_steps = current_step
-        assert total_steps >= num_timesteps
+        assert total_steps >= run_config.num_timesteps
 
         params = _unpmap((training_state.normalizer_params, training_state.q_params))
 
