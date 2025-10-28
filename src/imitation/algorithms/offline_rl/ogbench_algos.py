@@ -86,21 +86,17 @@ class OGBenchBase:
             batch = train_dataset.sample(agent_config['batch_size'])
             agent, update_info = agent.update(batch)
 
-            # # Log metrics.
-            # if i % FLAGS.log_interval == 0:
-            #     train_metrics = {f'training/{k}': v for k, v in update_info.items()}
-            #     if val_dataset is not None:
-            #         val_batch = val_dataset.sample(agent_config['batch_size'])
-            #         _, val_info = agent.total_loss(val_batch, grad_params=None)
-            #         train_metrics.update({f'validation/{k}': v for k, v in val_info.items()})
-            #     train_metrics['time/epoch_time'] = (time.time() - last_time) / FLAGS.log_interval
-            #     train_metrics['time/total_time'] = time.time() - first_time
-            #     last_time = time.time()
-            #     wandb.log(train_metrics, step=i)
-            #     train_logger.log(train_metrics, step=i)
-
             # Evaluate agent.
             if i % eval_interval == 0:
+                train_metrics = {f'training/{k}': v for k, v in update_info.items()}
+                if val_dataset is not None:
+                    val_batch = val_dataset.sample(agent_config['batch_size'])
+                    _, val_info = agent.total_loss(val_batch, grad_params=None)
+                    train_metrics.update({f'validation/{k}': v for k, v in val_info.items()})
+                # train_metrics['time/epoch_time'] = (time.time() - last_time) / FLAGS.log_interval
+                train_metrics['time/total_time'] = time.time() - first_time
+                last_time = time.time()
+
                 if run_config.eval_on_cpu:
                     eval_agent = jax.device_put(agent, device=jax.devices('cpu')[0])
                 else:
@@ -111,7 +107,7 @@ class OGBenchBase:
                 task_infos = env.unwrapped.task_infos if hasattr(env.unwrapped, 'task_infos') else env.task_infos
                 num_tasks = 1 # len(task_infos)
 
-                for task_id in tqdm.trange(1, num_tasks+1):
+                for task_id in range(1, num_tasks+1):
                     task_name = task_infos[task_id - 1]['task_name']
                     eval_info, trajs, cur_renders = evaluate(
                         agent=eval_agent,
@@ -141,7 +137,8 @@ class OGBenchBase:
                 #     eval_metrics['video'] = video
 
                 num_steps = i * agent_config['batch_size']
-                progress_fn(num_steps, eval_metrics)
+                metrics = train_metrics | eval_metrics
+                progress_fn(num_steps, metrics)
 
             # # Save agent.
             # if i % FLAGS.save_interval == 0:
