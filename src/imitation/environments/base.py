@@ -11,7 +11,6 @@ from flax import struct
 @dataclass
 class Env:
     env_impl: Optional[any]
-    env_params: Optional[any]
 
     def reset(self, *args, **kwargs):
         return self.env_impl.reset(*args, **kwargs)

@@ -194,8 +194,10 @@ class GymnaxState(BaseState):
 @dataclass
 class GymnaxEnv(Env):
 
-    def reset(self, *args, **kwargs):
-        obs, state = self.env_impl.reset(*args, **kwargs)
+    env_params: Optional[any]
+
+    def reset(self, rng: jax.Array):
+        obs, state = self.env_impl.reset(rng, self.env_params)
         rew = jnp.zeros((), dtype=jnp.float32)
         done = jnp.zeros((), dtype=jnp.float32)
         return GymnaxState(state_impl=state, obs=obs, reward=rew, done=done, metrics={}, info={})
@@ -227,6 +229,10 @@ class GymnaxEnv(Env):
         env = AutoResetWrapper(env)
         env = EvalWrapper(env)
         return env
+
+    def wrap_for_visualization(self):
+        wrapped_env_impl = FlattenObservationWrapper(self.env_impl)
+        return GymnaxEnv(env_impl=wrapped_env_impl, env_params=self.env_params)
 
     @property
     def n_observations(self):
