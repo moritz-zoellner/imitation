@@ -274,37 +274,38 @@ class GCIQLAgent(flax.struct.PyTreeNode):
         return cls(rng, network=network, config=flax.core.FrozenDict(**config))
 
 
-def get_config():
-    config = ml_collections.ConfigDict(
-        dict(
-            # Agent hyperparameters.
-            agent_name='gciql',  # Agent name.
-            lr=3e-4,  # Learning rate.
-            batch_size=1024,  # Batch size.
-            actor_hidden_dims=(512, 512, 512),  # Actor network hidden dimensions.
-            value_hidden_dims=(512, 512, 512),  # Value network hidden dimensions.
-            layer_norm=True,  # Whether to use layer normalization.
-            discount=0.99,  # Discount factor.
-            tau=0.005,  # Target network update rate.
-            expectile=0.9,  # IQL expectile.
-            actor_loss='ddpgbc',  # Actor loss type ('awr' or 'ddpgbc').
-            alpha=0.3,  # Temperature in AWR or BC coefficient in DDPG+BC.
-            const_std=True,  # Whether to use constant standard deviation for the actor.
-            discrete=False,  # Whether the action space is discrete.
-            encoder=ml_collections.config_dict.placeholder(str),  # Visual encoder name (None, 'impala_small', etc.).
-            # Dataset hyperparameters.
-            dataset_class='GCDataset',  # Dataset class name.
-            value_p_curgoal=0.2,  # Probability of using the current state as the value goal.
-            value_p_trajgoal=0.5,  # Probability of using a future state in the same trajectory as the value goal.
-            value_p_randomgoal=0.3,  # Probability of using a random state as the value goal.
-            value_geom_sample=True,  # Whether to use geometric sampling for future value goals.
-            actor_p_curgoal=0.0,  # Probability of using the current state as the actor goal.
-            actor_p_trajgoal=1.0,  # Probability of using a future state in the same trajectory as the actor goal.
-            actor_p_randomgoal=0.0,  # Probability of using a random state as the actor goal.
-            actor_geom_sample=False,  # Whether to use geometric sampling for future actor goals.
-            gc_negative=True,  # Whether to use '0 if s == g else -1' (True) or '1 if s == g else 0' (False) as reward.
-            p_aug=0.0,  # Probability of applying image augmentation.
-            frame_stack=ml_collections.config_dict.placeholder(int),  # Number of frames to stack.
+    @staticmethod
+    def get_config():
+        config = ml_collections.ConfigDict(
+            dict(
+                # Agent hyperparameters.
+                agent_name='gciql',  # Agent name.
+                lr=3e-4,  # Learning rate.
+                batch_size=1024,  # Batch size.
+                actor_hidden_dims=(512, 512, 512),  # Actor network hidden dimensions.
+                value_hidden_dims=(512, 512, 512),  # Value network hidden dimensions.
+                layer_norm=True,  # Whether to use layer normalization.
+                discount=0.99,  # Discount factor.
+                tau=0.005,  # Target network update rate.
+                expectile=0.9,  # IQL expectile.
+                actor_loss='ddpgbc',  # Actor loss type ('awr' or 'ddpgbc').
+                alpha=0.3,  # Temperature in AWR or BC coefficient in DDPG+BC.
+                const_std=True,  # Whether to use constant standard deviation for the actor.
+                discrete=False,  # Whether the action space is discrete.
+                encoder=ml_collections.config_dict.placeholder(str),  # Visual encoder name (None, 'impala_small', etc.).
+                # Dataset hyperparameters.
+                dataset_class='GCDataset',  # Dataset class name.
+                value_p_curgoal=0.2,  # Probability of using the current state as the value goal.
+                value_p_trajgoal=0.5,  # Probability of using a future state in the same trajectory as the value goal.
+                value_p_randomgoal=0.3,  # Probability of using a random state as the value goal.
+                value_geom_sample=True,  # Whether to use geometric sampling for future value goals.
+                actor_p_curgoal=0.0,  # Probability of using the current state as the actor goal.
+                actor_p_trajgoal=1.0,  # Probability of using a future state in the same trajectory as the actor goal.
+                actor_p_randomgoal=0.0,  # Probability of using a random state as the actor goal.
+                actor_geom_sample=False,  # Whether to use geometric sampling for future actor goals.
+                gc_negative=True,  # Whether to use '0 if s == g else -1' (True) or '1 if s == g else 0' (False) as reward.
+                p_aug=0.0,  # Probability of applying image augmentation.
+                frame_stack=ml_collections.config_dict.placeholder(int),  # Number of frames to stack.
+            )
         )
-    )
-    return config
+        return config

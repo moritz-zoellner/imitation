@@ -1,1 +1,1 @@
-from .og_bench_algos import GCIQL
+from .ogbench_algos import GCIQL
