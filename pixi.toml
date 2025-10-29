@@ -50,3 +50,8 @@ distrax = ">=0.1.5, <0.2"
 tqdm = ">=4.67.1, <5"
 ogbench = ">=1.1.5, <2"
 flax = ">=0.10.4, <0.11"
+imitation = { path = ".", editable = true }
+seals="*"
+ipykernel = ">=7.0.1, <8"
+numpy = "==1.26.4"
+moviepy = ">=2.2.1, <3"
