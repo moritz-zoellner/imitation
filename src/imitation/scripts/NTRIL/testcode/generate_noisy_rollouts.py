@@ -1,5 +1,7 @@
 """Code for testing and debugging NTRIL. Step 2: Generating noisy rollouts."""
 
+from typing import Any, Dict, Optional, Union
+
 import numpy as np
 import os
 import gymnasium as gym
@@ -9,10 +11,17 @@ import hypothesis.strategies as st
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from imitation.data import rollout
-from imitation.scripts.NTRIL.noise_injection import EpsilonGreedyNoiseInjector, NoisyPolicy
+from imitation.data import rollout, types
+from imitation.util import networks, util
+from imitation.scripts.NTRIL.noise_injection import (
+    EpsilonGreedyNoiseInjector,
+    NoisyPolicy,
+)
 from imitation.scripts.NTRIL.ntril import NTRILTrainer
-from imitation.scripts.NTRIL.utils import visualize_noise_levels, analyze_ranking_quality
+from imitation.scripts.NTRIL.utils import (
+    visualize_noise_levels,
+    analyze_ranking_quality,
+)
 from imitation.algorithms import bc
 from imitation.algorithms.bc import BC
 from imitation.data.wrappers import RolloutInfoWrapper
@@ -20,10 +29,12 @@ from imitation.util import logger, util
 from imitation.util.logger import configure
 from imitation.data import serialize
 
-def main():
 
+def main():
     """Load BC policy"""
-    policy_path = "/home/nicomiguel/imitation/src/imitation/scripts/NTRIL/testcode/BC_policy"
+    policy_path = (
+        "/home/nicomiguel/imitation/src/imitation/scripts/NTRIL/testcode/BC_policy"
+    )
     bc_policy = bc.reconstruct_policy(policy_path, device="cuda")
 
     """Noise Injector"""
@@ -35,20 +46,20 @@ def main():
 
     """Generate environment"""
     rngs = np.random.default_rng()
-    
+
     # Setup environment
-    venv = util.make_vec_env("MountainCarContinuous-v0", rng=rngs, post_wrappers = [lambda e, _: RolloutInfoWrapper(e)])
-    
+    venv = util.make_vec_env(
+        "MountainCarContinuous-v0",
+        rng=rngs,
+        post_wrappers=[lambda e, _: RolloutInfoWrapper(e)],
+    )
+
     # Generate expert demonstrations
     print("Generating expert demonstrations...")
     expert_trajectories = rollout.rollout(
-        noisy_bc_policy,
-        venv,
-        rollout.make_sample_until(min_episodes=10),
-        rng=rngs
+        noisy_bc_policy, venv, rollout.make_sample_until(min_episodes=10), rng=rngs
     )
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
