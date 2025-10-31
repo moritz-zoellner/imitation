@@ -1,5 +1,6 @@
 from .minari_dataset import MinariDataset
 from .ogbench_dataset import OGBenchDataset
+from .custom_dataset import CustomDataset
 
 # MINARI
 
