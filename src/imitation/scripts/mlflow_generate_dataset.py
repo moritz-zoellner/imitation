@@ -44,8 +44,13 @@ def main():
     parser.add_argument('--policies', type=PoliciesChoice.argtype, choices=PoliciesChoice, help="Way to select trained policies for collecting the dataset")
     parser.add_argument('--env', type=str, help='Name of environment to consider for training.')
     parser.add_argument('--episodes_per_policy', type=int, default=100, help="Number of episodes per trained policy to collect for the dataset")
-    parser.add_argument('--output', type=str, help="Output path")
+    parser.add_argument('--output', type=Path, help="Output path")
     args = parser.parse_args()
+
+    assert args.output.suffix == ".npz", "Output path should be an npz file"
+
+    if args.output.exists():
+        input(f"Output \"{args.output}\" exists. Continue and overwrite anyway?")
 
     run = mlflow.get_run(run_id=args.id)
 
@@ -91,10 +96,13 @@ def main():
         raise NotImplementedError()
 
     for policy in policies:
-        rollouts = env.rollout(policy, n_episodes=args.episodes_per_policy, episode_length=100, seed=0)
+        rollouts: dict[str, np.ndarray] = env.rollout(policy, n_episodes=args.episodes_per_policy, episode_length=100, seed=0)
+
+    # create parent directory
+    args.output.parent.mkdir(parents=True, exist_ok=True)
 
     with open(args.output, "wb") as f:
-        np.savez(f, allow_pickle=True, **rollouts)
+        np.savez(f, **rollouts)
 
 if __name__ == "__main__":
     mlflow.set_tracking_uri("file:///home/tassos/.local/share/mlflow")

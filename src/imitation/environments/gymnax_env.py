@@ -2,6 +2,8 @@ from typing import Any, Optional, Dict
 from functools import partial
 from dataclasses import dataclass
 
+import numpy as np
+
 import jax
 import jax.numpy as jnp
 from flax import struct
@@ -12,6 +14,7 @@ from gymnax.environments.environment import EnvState
 from gymnax.wrappers import FlattenObservationWrapper
 
 from .base import Env, BaseState, EvalMetrics
+from imitation.environments import jax_acting as acting
 
 
 class BaseWrapper:
@@ -233,6 +236,28 @@ class GymnaxEnv(Env):
     def wrap_for_visualization(self):
         wrapped_env_impl = FlattenObservationWrapper(self.env_impl)
         return GymnaxEnv(env_impl=wrapped_env_impl, env_params=self.env_params)
+
+    def rollout(self, policy, n_episodes: int, episode_length: int, seed: int):
+        env = self.wrap_for_eval(episode_length, 1)
+
+        key = jax.random.PRNGKey(seed)
+        reset_keys = jax.random.split(key, n_episodes)
+        first_state = env.reset(reset_keys)
+        data = acting.generate_unroll(
+            env,
+            first_state,
+            policy,
+            key,
+            unroll_length=episode_length,
+        )[1]
+
+        return {
+            'observation': np.asarray(data.observation),
+            'action': np.asarray(data.action),
+            'reward': np.asarray(data.reward),
+            'next_observation': np.asarray(data.next_observation),
+            'discount': np.asarray(data.discount),
+        }
 
     @property
     def n_observations(self):
