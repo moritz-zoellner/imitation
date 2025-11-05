@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 import minari
 
-from .base import Dataset
+from .base import BaseDataset
 
 
 @dataclass(kw_only=True)
-class MinariDataset(Dataset):
+class MinariDataset(BaseDataset):
 
     dataset_impl: Any
 

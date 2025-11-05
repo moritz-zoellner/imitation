@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 import ogbench
 
-from .base import Dataset
+from .base import BaseDataset
 
 
 @dataclass(kw_only=True)
-class OGBenchDataset(Dataset):
+class OGBenchDataset(BaseDataset):
 
     env_impl: Any
     train_dataset_impl: Any

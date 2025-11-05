@@ -5,11 +5,12 @@ from importlib.resources import files
 import numpy as np
 
 import imitation
-from .base import Dataset
+
+from .base import BaseDataset
 
 
 @dataclass(kw_only=True)
-class CustomDataset(Dataset):
+class CustomDataset(BaseDataset):
 
     data: Any
 

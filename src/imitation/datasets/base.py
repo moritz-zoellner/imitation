@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Dataset:
+class BaseDataset:
 
     batch_size: int = 256
 
