@@ -209,7 +209,7 @@ def sample_trajectories_with_reward(policy, no_traj, env_name, seed=None, determ
 
     return results
 
-def generate_trajectories(policy_entries, env_name):
+def generate_trajectories(policy_entries, env_name, no_trajectories=3):
     trajectory_entries = []
 
     for policy_path in policy_entries:
@@ -219,7 +219,7 @@ def generate_trajectories(policy_entries, env_name):
 
         traj_infos = sample_trajectories_with_reward(
             policy=policy,
-            no_traj=3,
+            no_traj=no_trajectories,
             env_name=env_name,
             deterministic=True,
         )
