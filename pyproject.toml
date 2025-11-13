@@ -1,24 +1,14 @@
-[project]
-name = "imitation"
-# Let setuptools_scm and setup.py handle everything dynamically
-dynamic = ["version", "dependencies", "description", "readme"]
+[tool.poetry]
+name = "cs592-proj"
+version = "0.1.0"
+description = ""
+authors = ["Tassos Manganaris", "Nico Miguel", "Moritz Zoellner"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
 
 [build-system]
-# Pin to setuptools 66.1.1 because of gym==0.21.0 compatibility
-requires = ["setuptools==66.1.1", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
-local_scheme = "no-local-version"
-
-[tool.black]
-target-version = ["py38"]
-
-[tool.pytype]
-inputs = [
-  "src/",
-  "tests/",
-  "experiments/",
-  "setup.py"
-]
-python_version = "3.8"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

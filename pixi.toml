@@ -11,7 +11,7 @@ version = "0.1.0"
 python = "3.10.*"
 
 [pypi-dependencies]
-imitation = { path = ".", editable = true }
+cs592-proj = { path = ".", editable = true }
 jax = { version = ">=0.4.34, <0.4.38", extras = ["cuda12"] }
 mlflow = ">=3.4.0, <4"
 ml-collections = ">=1.1.0, <2"
