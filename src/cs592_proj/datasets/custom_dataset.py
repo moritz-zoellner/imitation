@@ -5,9 +5,9 @@ from importlib.resources import files
 import numpy as np
 import jax.numpy as jnp
 
-import imitation
-import imitation.environments
-from imitation.algorithms.offline_rl.utils.datasets import MyDataset
+import cs592_proj
+import cs592_proj.environments
+from cs592_proj.algorithms.offline_rl.utils.datasets import MyDataset
 
 from .base import BaseDataset
 
@@ -29,8 +29,8 @@ class CustomDataset(BaseDataset):
 
     @staticmethod
     def from_resource_path(path, env_name):
-        full_path = files(imitation) / path
+        full_path = files(cs592_proj) / path
         data = jnp.load(full_path)
         dataset = MyDataset.create(**data)
-        env = getattr(imitation.environments, env_name)
+        env = getattr(cs592_proj.environments, env_name)
         return CustomDataset(dataset_impl=dataset, env=env)

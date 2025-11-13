@@ -14,7 +14,7 @@ from gymnax.environments.environment import EnvState
 from gymnax.wrappers import FlattenObservationWrapper
 
 from .base import Env, BaseState, EvalMetrics
-from imitation.environments import jax_acting as acting
+from cs592_proj.environments import jax_acting as acting
 
 
 class BaseWrapper:

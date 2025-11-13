@@ -24,8 +24,8 @@ from brax.training.types import PRNGKey
 import flax
 from flax import linen
 
-from imitation.environments import gymnasium_acting as acting
-from imitation.environments.gymnasium_acting import Evaluator
+from cs592_proj.environments import gymnasium_acting as acting
+from cs592_proj.environments.gymnasium_acting import Evaluator
 
 
 

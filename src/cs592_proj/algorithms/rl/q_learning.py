@@ -12,7 +12,7 @@ import jax.numpy as jnp
 import optax
 import numpy as np
 
-from imitation.algorithms.rl.utils import tables
+from cs592_proj.algorithms.rl.utils import tables
 
 # from navix import Timestep
 

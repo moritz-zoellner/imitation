@@ -25,7 +25,7 @@ from flax import struct
 import jax
 import jax.numpy as jnp
 
-from imitation.algorithms.rl.utils import types
+from cs592_proj.algorithms.rl.utils import types
 
 
 def _zeros_like(nest: types.Nest, dtype=None) -> types.Nest:
