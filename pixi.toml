@@ -11,6 +11,7 @@ version = "0.1.0"
 python = "3.10.*"
 
 [pypi-dependencies]
+<<<<<<< HEAD
 imitation = { path = ".", editable = true }
 jax = { version = ">=0.4.34, <0.4.38", extras = ["cuda12"] }
 mlflow = ">=3.4.0, <4"
@@ -42,6 +43,8 @@ version = "0.1.0"
 python = "3.10.*"
 
 [pypi-dependencies]
+=======
+>>>>>>> a07e62588fd5a230df1be3e458a71395661f7a4f
 
 jax = { version = ">=0.4.34, <0.4.38", extras = ["cuda12"] }
 mlflow = ">=3.4.0, <4"
