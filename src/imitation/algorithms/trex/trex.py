@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import gymnasium as gym
+from stable_baselines3 import PPO
 
 
 def make_fragments(traj, frag_len=25, rng=None):
@@ -19,7 +20,6 @@ def make_ranked_pairs(trajs, n_pairs=20000, frag_len=25, rng=None, tie_margin=0.
     frags = []
     for tr in trajs:
         frags += make_fragments(tr, frag_len, rng)
-        print(len(frags))
     frags = [(o.astype(np.float32), r.astype(np.float32)) for o,r in frags]
     # sample pairs + label by true return
     pairs = []
@@ -61,20 +61,40 @@ class RewardMLP(nn.Module):
         )
     def forward(self, x):            # x: (B, D)
         return self.net(x).squeeze(-1)
+    
+
+class LearnedRewardEnv(gym.Wrapper):
+    """Wraps env to replace rewards with learned reward network outputs."""
+    def __init__(self, env, reward_model, device):
+        super().__init__(env)
+        self.reward_model = reward_model
+        self.device = device
+
+    def step(self, action):
+        obs, true_reward, terminated, truncated, info = self.env.step(action)
+        obs_tensor = torch.as_tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
+        with torch.no_grad():
+            learned_reward = self.reward_model(obs_tensor).item()
+        info = dict(info)
+        info.setdefault('true_reward', true_reward)
+        return obs, learned_reward, terminated, truncated, info
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
 
 class TREX:
 
     #TODO: extract all parameters for training 
     num_epochs = 300
+    learned_reward_timesteps = 200000
     ENV_NAME = 'CartPole-v1'
 
     # TODO:  different dataset object then tassos, currently just an array of trajectoryWithRew objects
     def train_fn(self, dataset, progress_fn):
         pairs = make_ranked_pairs(dataset)
-        print(len(pairs))
 
-        # Prepare Pytorch datasets for training/validation
+        # -------- Prepare Pytorch datasets for training/validation -------------
         pairs_dataset = PrefPairsDS(pairs)
         val_fraction = 0.2
         val_size = max(1, int(len(pairs_dataset) * val_fraction))
@@ -96,7 +116,7 @@ class TREX:
         #TODO: cpu is still hardcoded
         device = torch.device("cpu"); reward_net.to(device)
 
-
+        #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
             B,T,D = obs_seq.shape
             r = reward_net(obs_seq.reshape(B*T, D)).view(B,T).sum(dim=1)
@@ -128,6 +148,7 @@ class TREX:
         for epoch in range(1, self.num_epochs + 1):
             train_loss = run_epoch(train_loader, train=True)
             val_loss = run_epoch(val_loader, train=False)
+            #TODO definitely different metrics 
             metrics = {
                 "epoch": epoch,
                 "num_epochs": self.num_epochs,
@@ -135,3 +156,16 @@ class TREX:
                 "val_loss": val_loss
             }
             progress_fn(metrics)
+        
+        #-------------- Building a policy from trained reward net ------------
+        
+        reward_net.eval()
+        print("start_learning")
+        def make_env(name):
+            base_env = gym.make(name)
+            return LearnedRewardEnv(base_env, reward_net, device)
+
+        ppo_model = PPO('MlpPolicy', make_env(self.ENV_NAME), verbose=1, seed=0)
+        ppo_model.learn(total_timesteps=self.learned_reward_timesteps)
+
+        return ppo_model

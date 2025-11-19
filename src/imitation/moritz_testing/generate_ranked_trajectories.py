@@ -226,4 +226,3 @@ def generate_trajectories(policy_entries, env_name, no_trajectories=3):
         trajectory_entries.extend(traj_infos)
     
     return trajectory_entries
-
