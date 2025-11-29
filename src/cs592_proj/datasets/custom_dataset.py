@@ -14,6 +14,24 @@ import cs592_proj.environments
 from .base import BaseDataset
 
 
+class CustomDatasetImplIterator:
+    def __init__(self, data):
+        self._data = data
+        self._index = 0
+        self._len = self._data["observations"].shape[0]
+
+    def __iter__(self):
+        return self  # Iterators must return themselves for __iter__
+
+    def __next__(self):
+        if self._index < self._len:
+            item = jax.tree_util.tree_map(lambda arr: arr[self._index], self._data)
+            self._index += 1
+            return item
+        else:
+            raise StopIteration
+
+
 class CustomDatasetImpl(FrozenDict):
 
     @classmethod
@@ -38,6 +56,9 @@ class CustomDatasetImpl(FrozenDict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.size = jnp.array(self._dict["observations"].shape[:-1])
+
+    def __iter__(self):
+        return CustomDatasetImplIterator(self._dict)
 
     def get_random_idxs(self, key, num_idxs):
         """Return `num_idxs` random indices."""
@@ -66,6 +87,9 @@ class CustomDataset(BaseDataset):
     dataset_impl: Any
     env: Any
 
+    def get_env(self):
+        return self.env
+
     def get_eval_env(self, episode_length: int, action_repeat: int):
         return self.env.wrap_for_eval(episode_length, action_repeat)
 
@@ -74,6 +98,9 @@ class CustomDataset(BaseDataset):
 
     def sample(self, key, batch_size):
         return self.dataset_impl.sample(key, batch_size)
+
+    def __iter__(self):
+        return iter(self.dataset_impl)
 
     @staticmethod
     def from_resource_path(path, env_name):
