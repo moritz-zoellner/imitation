@@ -10,11 +10,36 @@ from flax import struct
 
 import gymnax
 from gymnax.environments.spaces import Discrete
-from gymnax.environments.environment import EnvState
+from gymnax.environments.environment import EnvState, EnvParams
+from gymnax.wrappers.purerl import GymnaxWrapper
 from gymnax.wrappers import FlattenObservationWrapper
+
+from torch2jax import j2t, t2j
 
 from .base import Env, BaseState, EvalMetrics
 from cs592_proj.environments import jax_acting as acting
+
+
+class NewRewardWrapper(GymnaxWrapper):
+    """Wraps env to replace rewards with learned reward network outputs."""
+
+    def __init__(self, env: Env, new_reward_fn):
+        super().__init__(env)
+        self.new_reward_fn = t2j(new_reward_fn)
+        self.new_reward_fn_params = {k: t2j(v) for k, v in new_reward_fn.named_parameters()}
+
+    @partial(jax.jit, static_argnames=("self",))
+    def step(
+        self,
+        key: jax.Array,
+        state: EnvState,
+        action: int | float,
+        params: EnvParams | None = None,
+    ) -> tuple[jax.Array, EnvState, float, bool, Any]:  # dict]:
+        obs, state, _, done, info = self._env.step(key, state, action, params)
+        reward = self.new_reward_fn(jnp.reshape(obs, (-1,)),
+                                    state_dict=self.new_reward_fn_params).squeeze(-1)
+        return obs, state, reward, done, info
 
 
 class BaseWrapper:
@@ -198,6 +223,7 @@ class GymnaxState(BaseState):
 class GymnaxEnv(Env):
 
     env_params: Optional[any]
+    training_reward_fn: Optional[any] = None
 
     def reset(self, rng: jax.Array):
         obs, state = self.env_impl.reset(rng, self.env_params)
@@ -216,8 +242,15 @@ class GymnaxEnv(Env):
             metrics=state.metrics,
             info=state.info)
 
+    def override_training_reward_fn(self, reward_fn):
+        self.training_reward_fn = reward_fn
+
     def wrap_for_training(self, episode_length: int, action_repeat: int):
         wrapped_env_impl = FlattenObservationWrapper(self.env_impl)
+
+        if self.training_reward_fn is not None:
+            wrapped_env_impl = NewRewardWrapper(wrapped_env_impl, self.training_reward_fn)
+
         env = GymnaxEnv(env_impl=wrapped_env_impl, env_params=self.env_params)
         env = VmapWrapper(env)
         env = EpisodeWrapper(env, episode_length, action_repeat)

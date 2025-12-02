@@ -1,18 +1,23 @@
 import numpy as np
+from tqdm import trange
+
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import gymnasium as gym
-from stable_baselines3 import PPO
+
+from cs592_proj import algorithms
 
 
 def make_fragments(traj, frag_len=25, rng=None):
     rng = np.random.default_rng() if rng is None else rng
-    T = len(traj.obs) - 1  # last obs has no action
+    T = len(traj["observations"]) - 1  # last obs has no action
     if T < frag_len: return []
     starts = rng.integers(0, T - frag_len + 1, size=max(1, T // frag_len))
-    return [(traj.obs[s:s+frag_len], traj.rews) for s in starts]
+    observations = np.array(traj["observations"])
+    rewards = np.array(traj["reward"])
+    return [(observations[s:s+frag_len], rewards) for s in starts]
 
 def make_ranked_pairs(trajs, n_pairs=20000, frag_len=25, rng=None, tie_margin=0.0):
     rng = np.random.default_rng() if rng is None else rng
@@ -60,7 +65,7 @@ class RewardMLP(nn.Module):
             nn.Linear(hid, 1)
         )
     def forward(self, x):            # x: (B, D)
-        return self.net(x).squeeze(-1)
+        return self.net(x)
     
 
 class LearnedRewardEnv(gym.Wrapper):
@@ -88,10 +93,14 @@ class TREX:
     #TODO: extract all parameters for training 
     num_epochs = 300
     learned_reward_timesteps = 200000
+    episode_length: int = 1000
+    action_repeat: int = 1
+    policy_learning_algo: str = "DQN"
+
     ENV_NAME = 'CartPole-v1'
 
     # TODO:  different dataset object then tassos, currently just an array of trajectoryWithRew objects
-    def train_fn(self, dataset, progress_fn):
+    def train_fn(self, *, run_config, dataset, progress_fn, **_):
         pairs = make_ranked_pairs(dataset)
 
         # -------- Prepare Pytorch datasets for training/validation -------------
@@ -107,8 +116,8 @@ class TREX:
         train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, collate_fn=collate_pad)
         val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False, collate_fn=collate_pad)
 
-        #TODO: still relies on Gym Environment, instead of our own wrapper
-        obs_dim = gym.make(self.ENV_NAME).observation_space.shape[0]
+        eval_env = dataset.get_eval_env(episode_length=self.episode_length, action_repeat=self.action_repeat)
+        obs_dim = eval_env.obs_size
 
         reward_net = RewardMLP(obs_dim)
         opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
@@ -144,8 +153,7 @@ class TREX:
                     n_batches += 1
             return total_loss / max(1, n_batches)
         
-        
-        for epoch in range(1, self.num_epochs + 1):
+        for epoch in trange(1, self.num_epochs + 1):
             train_loss = run_epoch(train_loader, train=True)
             val_loss = run_epoch(val_loader, train=False)
             #TODO definitely different metrics 
@@ -155,17 +163,26 @@ class TREX:
                 "train_loss": train_loss,
                 "val_loss": val_loss
             }
-            progress_fn(metrics)
-        
+
         #-------------- Building a policy from trained reward net ------------
         
-        reward_net.eval()
         print("start_learning")
-        def make_env(name):
-            base_env = gym.make(name)
-            return LearnedRewardEnv(base_env, reward_net, device)
 
-        ppo_model = PPO('MlpPolicy', make_env(self.ENV_NAME), verbose=1, seed=0)
-        ppo_model.learn(total_timesteps=self.learned_reward_timesteps)
+        reward_net.eval()
+        env = dataset.get_env()
+        env.override_training_reward_fn(reward_net)
 
-        return ppo_model
+        if hasattr(algorithms, self.policy_learning_algo):
+            AlgoClass = getattr(algorithms, self.policy_learning_algo)
+        else:
+            raise NotImplementedError(f"Algorithm {self.policy_learning_algo} not found")
+
+        algo = AlgoClass()
+
+        make_policy, params, metrics = algo.train_fn(
+            run_config=run_config,
+            env=env,
+            progress_fn=progress_fn
+        )
+
+        return make_policy, params, metrics
