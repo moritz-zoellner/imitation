@@ -85,7 +85,7 @@ def main():
 
 
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("file:///home/tassos/.local/share/mlflow")
+    mlflow.set_tracking_uri("file:///home/nicomiguel/CS592/local_data")
     mlflow.set_experiment("cs592-il-training")
 
     main()
