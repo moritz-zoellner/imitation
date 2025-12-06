@@ -23,32 +23,8 @@ import cs592_proj.environments as envs  # noqa: F401 (likely used elsewhere)
 
 
 def rollout_true_return(env, policy, episode_length=300, seed=0):
-    """
-    Computes *ground-truth* return of a policy in a gymnax-style wrapped env:
-        state = env.reset(key)
-        state = env.step(key, state, action)
-    """
-    key = jax.random.PRNGKey(seed)
-    key, key_reset = jax.random.split(key)
-    state = env.reset(key_reset)
-
-    total_reward = 0.0
-    t = 0
-
-    while t < episode_length:
-        key, key_act, key_step = jax.random.split(key, 3)
-
-        obs = jnp.expand_dims(state.obs, 0)  # policy expects batch dim
-        action, _ = policy(obs, key_act)
-
-        state = env.step(key_step, state, action.squeeze())
-        total_reward += float(state.reward)
-
-        if state.done:
-            break
-        t += 1
-
-    return total_reward
+    #TODO rollout policy in env 20 times and get the reward each time, then return the achieved avg and std  
+    return reward_avg, reward_std
 
 def progress_logger(tag: str):
     def _log(step: int, metrics: Dict, **kwargs):
@@ -92,7 +68,7 @@ def run_training(
             policy = make_policy(params, deterministic=True)
 
             # evaluate with ground-truth environment reward
-            ret = rollout_true_return(env, policy, seed=0)
+            avg_reward, std_reward = rollout_true_return(env, policy, seed=0)
 
             out_path = output_dir / f"{algo_name}_{ds_path.stem}"
             model.save_params(out_path, params)
@@ -104,7 +80,7 @@ def run_training(
                     "dataset_name": ds_path.name,
                     "dataset_path": str(ds_path),
                     "algo": algo_name,
-                    "ret": ret,
+                    #add avg and std of acheived reward of that policy 
                     "env": env_name,
                     "params_path": str(out_path),
                     "num_timesteps": run_config.num_timesteps,
