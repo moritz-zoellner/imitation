@@ -9,11 +9,11 @@ from brax.io import model
 
 from gymnax.visualize import Visualizer
 
-from imitation.algorithms.run_config import RunConfig
+from cs592_proj.algorithms.run_config import RunConfig
 
-from imitation import algorithms
-from imitation import environments
-from imitation import datasets
+from cs592_proj import algorithms
+from cs592_proj import environments
+from cs592_proj import datasets
 
 import mlflow
 
@@ -56,7 +56,7 @@ def main():
     make_policy = algo.get_make_policy_fn(env=env, dataset=dataset)
 
     # get policy parameters
-    logged_model_path = f'runs:/{args.id}/policy_params'
+    logged_model_path = f'runs:/{args.id}/policy_params_40000512'
     real_path = mlflow.artifacts.download_artifacts(logged_model_path)
     params = model.load_params(real_path)
 
@@ -84,10 +84,10 @@ def main():
 
     cum_rewards = jnp.cumsum(jnp.array(reward_seq))
     vis = Visualizer(env.env_impl, env.env_params, state_seq, cum_rewards)
-    vis.animate(f"docs/anim.gif")
+    vis.animate(f"/home/nicomiguel/CS592/local_data/anim_40000512.gif")
 
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("file:///home/tassos/.local/share/mlflow")
+    mlflow.set_tracking_uri("file:///home/nicomiguel/CS592/local_data")
     mlflow.set_experiment("cs592-il-training")
 
     main()
