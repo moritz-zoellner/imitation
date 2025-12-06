@@ -24,7 +24,7 @@ import cs592_proj.environments as envs  # noqa: F401 (likely used elsewhere)
 
 def rollout_true_return(env, policy, episode_length=1000, seed=0):
     """Roll out a policy in the true environment and compute avg/std returns."""
-    n_episodes = 20
+    n_episodes = 1
     rollouts = env.rollout(
         policy, n_episodes=n_episodes, episode_length=episode_length, seed=seed
     )
@@ -49,7 +49,7 @@ def run_training(
     output_dir: pathlib.Path,
 ):
     algos: Dict[str, object] = {
-        #"TREX": TREX(),
+        "TREX": TREX(),
         "CLASSIFIER_BC": CLASSIFIER_BC(num_evals=run_config.num_evals),
         # TODO: add Offline RL algorithms here, e.g. "IQL": IQL(...)
     }
@@ -135,7 +135,7 @@ def main():
     parser.add_argument(
         "--num-timesteps",
         type=int,
-        default=10000,
+        default=1000000,
         help="Training timesteps per run.",
     )
     parser.add_argument(

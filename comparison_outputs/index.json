@@ -1,80 +1,164 @@
 [
   {
     "dataset_name": "policy_params.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 185.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_0.npz",
+    "algo": "TREX",
+    "avg_reward": 62.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_0.npz",
     "algo": "CLASSIFIER_BC",
+    "avg_reward": 27.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_10000128.npz",
+    "algo": "TREX",
     "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_10000128.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 195.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_13333504.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_13333504.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 104.0,
+    "avg_reward": 189.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_16666880.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_16666880.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 71.0,
+    "avg_reward": 121.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_20000256.npz",
+    "algo": "TREX",
+    "avg_reward": 21.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_20000256.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 196.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_23333632.npz",
+    "algo": "TREX",
+    "avg_reward": 106.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_23333632.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 179.0,
+    "avg_reward": 194.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_26667008.npz",
+    "algo": "TREX",
+    "avg_reward": 111.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_26667008.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 179.0,
+    "avg_reward": 195.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_30000384.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_30000384.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 178.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_3333376.npz",
+    "algo": "TREX",
+    "avg_reward": 37.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_3333376.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 189.0,
+    "avg_reward": 155.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_33333760.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_33333760.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 190.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_36667136.npz",
+    "algo": "TREX",
+    "avg_reward": 35.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_36667136.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 185.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_40000512.npz",
+    "algo": "TREX",
+    "avg_reward": 78.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_40000512.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 195.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_43333888.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
@@ -85,20 +169,38 @@
   },
   {
     "dataset_name": "policy_params_46667264.npz",
+    "algo": "TREX",
+    "avg_reward": 59.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_46667264.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 195.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_50000640.npz",
+    "algo": "TREX",
+    "avg_reward": 0.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_50000640.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 185.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_6666752.npz",
+    "algo": "TREX",
+    "avg_reward": 172.0,
     "std_reward": 0.0
   },
   {
     "dataset_name": "policy_params_6666752.npz",
     "algo": "CLASSIFIER_BC",
-    "avg_reward": 166.0,
+    "avg_reward": 150.0,
     "std_reward": 0.0
   }
 ]

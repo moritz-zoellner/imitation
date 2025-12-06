@@ -91,7 +91,7 @@ class LearnedRewardEnv(gym.Wrapper):
 class TREX:
 
     #TODO: extract all parameters for training 
-    num_epochs =2
+    num_epochs = 30
     learned_reward_timesteps = 200000
     episode_length: int = 1000
     action_repeat: int = 1
@@ -121,7 +121,7 @@ class TREX:
         opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
 
         #TODO: cpu is still hardcoded
-        device = torch.device("cpu"); reward_net.to(device)
+        device = torch.device("cuda"); reward_net.to(device)
 
         #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
