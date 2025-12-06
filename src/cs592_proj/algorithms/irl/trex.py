@@ -91,7 +91,7 @@ class LearnedRewardEnv(gym.Wrapper):
 class TREX:
 
     #TODO: extract all parameters for training 
-    num_epochs = 300
+    num_epochs =2
     learned_reward_timesteps = 200000
     episode_length: int = 1000
     action_repeat: int = 1
@@ -163,6 +163,7 @@ class TREX:
                 "train_loss": train_loss,
                 "val_loss": val_loss
             }
+            print(metrics) 
 
         #-------------- Building a policy from trained reward net ------------
         

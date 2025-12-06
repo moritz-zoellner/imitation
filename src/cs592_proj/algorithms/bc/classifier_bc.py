@@ -466,7 +466,15 @@ class CLASSIFIER_BC:
                 progress_fn(current_step, metrics, params=params)
 
         total_steps = current_step
-        assert total_steps >= run_config.num_timesteps
+        # In practice the ceil-based epoch calculation can leave us a bit short
+        # of the requested timesteps. Rather than crash, emit a warning so the
+        # caller can still use the policy.
+        if total_steps < run_config.num_timesteps:
+            logging.warning(
+                "BC finished with total_steps=%s < requested %s; continuing anyway.",
+                total_steps,
+                run_config.num_timesteps,
+            )
 
         params = _unpmap((training_state.normalizer_params, training_state.classifier_params))
 

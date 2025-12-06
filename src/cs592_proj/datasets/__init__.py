@@ -14,6 +14,10 @@ PongExpertV0 = MinariDataset.from_name("atari/pong/expert-v0", wrappers=[AtariWr
 AntMazeMediumNavigateV0 = OGBenchDataset.from_name('antmaze-medium-navigate-v0')
 
 # CUSTOM
+#SpaceInvadersV0 = CustomDataset.from_resource_path('custom_datasets/dqn-space-invaders.npz', env_name="space_invaders")
+#SpaceInvadersV1 = CustomDataset.from_resource_path('custom_datasets/dqn-space-invaders-v1.npz', env_name="space_invaders")
 
-SpaceInvadersV0 = CustomDataset.from_resource_path('custom_datasets/dqn-space-invaders.npz', env_name="space_invaders")
-SpaceInvadersV1 = CustomDataset.from_resource_path('custom_datasets/dqn-space-invaders-v1.npz', env_name="space_invaders")
+
+
+
+suboptimal_dataset = CustomDataset.from_resource_path('custom_datasets/policy_params_0.npz', env_name="space_invaders")
