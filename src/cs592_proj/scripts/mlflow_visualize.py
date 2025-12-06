@@ -11,9 +11,9 @@ from gymnax.visualize import Visualizer
 
 from imitation.algorithms.run_config import RunConfig
 
-from imitation import algorithms
-from imitation import environments
-from imitation import datasets
+from cs592_proj import algorithms
+from cs592_proj import environments
+from cs592_proj import datasets
 
 import mlflow
 

@@ -26,6 +26,8 @@ def main():
     parser.add_argument('--seed', type=int, default=0, help='Seed for randomness in training.')
     args = parser.parse_args()
 
+    print(args)
+
     if hasattr(algorithms, args.algo):
         AlgoClass = getattr(algorithms, args.algo)
     else:
@@ -85,7 +87,7 @@ def main():
 
 
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("file:///home/tassos/.local/share/mlflow")
+    mlflow.set_tracking_uri("file:///home/mzoellner/.local/share/mlflow")
     mlflow.set_experiment("cs592-il-training")
 
     main()

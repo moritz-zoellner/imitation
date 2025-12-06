@@ -91,13 +91,11 @@ class LearnedRewardEnv(gym.Wrapper):
 class TREX:
 
     #TODO: extract all parameters for training 
-    num_epochs = 300
+    num_epochs = 30
     learned_reward_timesteps = 200000
     episode_length: int = 1000
     action_repeat: int = 1
     policy_learning_algo: str = "DQN"
-
-    ENV_NAME = 'CartPole-v1'
 
     # TODO:  different dataset object then tassos, currently just an array of trajectoryWithRew objects
     def train_fn(self, *, run_config, dataset, progress_fn, **_):
@@ -123,7 +121,7 @@ class TREX:
         opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
 
         #TODO: cpu is still hardcoded
-        device = torch.device("cpu"); reward_net.to(device)
+        device = torch.device("cuda"); reward_net.to(device)
 
         #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
@@ -163,6 +161,7 @@ class TREX:
                 "train_loss": train_loss,
                 "val_loss": val_loss
             }
+            print(metrics) 
 
         #-------------- Building a policy from trained reward net ------------
         
