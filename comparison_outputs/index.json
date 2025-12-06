@@ -1,0 +1,104 @@
+[
+  {
+    "dataset_name": "policy_params.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_0.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 0.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_10000128.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_13333504.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 104.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_16666880.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 71.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_20000256.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_23333632.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 179.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_26667008.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 179.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_30000384.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_3333376.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 189.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_33333760.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_36667136.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_40000512.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_43333888.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_46667264.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_50000640.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_6666752.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 166.0,
+    "std_reward": 0.0
+  }
+]

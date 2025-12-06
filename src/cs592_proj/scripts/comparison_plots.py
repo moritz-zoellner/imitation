@@ -22,13 +22,23 @@ import cs592_proj.environments as envs  # noqa: F401 (likely used elsewhere)
 
 
 
-def rollout_true_return(env, policy, episode_length=300, seed=0):
-    #TODO rollout policy in env 20 times and get the reward each time, then return the achieved avg and std  
+def rollout_true_return(env, policy, episode_length=1000, seed=0):
+    """Roll out a policy in the true environment and compute avg/std returns."""
+    n_episodes = 20
+    rollouts = env.rollout(
+        policy, n_episodes=n_episodes, episode_length=episode_length, seed=seed
+    )
+    rewards = np.asarray(rollouts["reward"])
+    episode_returns = rewards.sum(axis=0)
+    print(episode_returns)
+    reward_avg = float(np.mean(episode_returns))
+    reward_std = float(np.std(episode_returns))
     return reward_avg, reward_std
 
 def progress_logger(tag: str):
     def _log(step: int, metrics: Dict, **kwargs):
-        print(f"[{tag}] step={step} metrics={metrics}")
+        #print(f"[{tag}] step={step} metrics={metrics}")
+        print(f"[{tag}] step={step}")
     return _log
 
 
@@ -64,28 +74,30 @@ def run_training(
                 progress_fn=progress_logger(f"{ds_path.name}:{algo_name}"),
             )
             env = dataset.env
-            print(env)
             policy = make_policy(params, deterministic=True)
 
             # evaluate with ground-truth environment reward
             avg_reward, std_reward = rollout_true_return(env, policy, seed=0)
+            print(avg_reward, std_reward)
 
-            out_path = output_dir / f"{algo_name}_{ds_path.stem}"
-            model.save_params(out_path, params)
-            print(f"Saved policy params to {out_path}")
+            #out_path = output_dir / f"{algo_name}_{ds_path.stem}"
+            #model.save_params(out_path, params)
+            #print(f"Saved policy params to {out_path}")
 
             # Add one entry per (dataset, algo) to the index
             index.append(
                 {
                     "dataset_name": ds_path.name,
-                    "dataset_path": str(ds_path),
+                    #"dataset_path": str(ds_path),
                     "algo": algo_name,
                     #add avg and std of acheived reward of that policy 
-                    "env": env_name,
-                    "params_path": str(out_path),
-                    "num_timesteps": run_config.num_timesteps,
-                    "num_evals": run_config.num_evals,
-                    "seed": run_config.seed,
+                    "avg_reward": avg_reward,
+                    "std_reward": std_reward,
+                    #"env": env_name,
+                    #"params_path": str(out_path),
+                    #"num_timesteps": run_config.num_timesteps,
+                    #"num_evals": run_config.num_evals,
+                    #"seed": run_config.seed,
                 }
             )
 

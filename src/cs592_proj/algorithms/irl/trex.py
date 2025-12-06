@@ -97,8 +97,6 @@ class TREX:
     action_repeat: int = 1
     policy_learning_algo: str = "DQN"
 
-    ENV_NAME = 'CartPole-v1'
-
     # TODO:  different dataset object then tassos, currently just an array of trajectoryWithRew objects
     def train_fn(self, *, run_config, dataset, progress_fn, **_):
         pairs = make_ranked_pairs(dataset)
