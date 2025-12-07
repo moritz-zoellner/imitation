@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
 import argparse
 import json
 import pathlib
@@ -12,15 +14,43 @@ import numpy as np
 
 from cs592_proj import algorithms
 from cs592_proj import environments
+from gymnax.visualize import Visualizer
 
 
 from cs592_proj.algorithms.run_config import RunConfig
 from cs592_proj.algorithms.bc.classifier_bc import CLASSIFIER_BC
 from cs592_proj.algorithms.irl.trex import TREX
+from cs592_proj.algorithms.offline_rl.iql import IQL
 from cs592_proj.datasets.custom_dataset import CustomDataset
 import cs592_proj.environments as envs  # noqa: F401 (likely used elsewhere)
 
 
+
+def visualize(env, policy, path):
+    env = env.wrap_for_visualization()
+
+    # visualize policy (TODO: abstract)
+    state_seq, reward_seq = [], []
+    key = jax.random.PRNGKey(0)
+    key, key_reset = jax.random.split(key)
+    state = env.reset(key_reset)
+    i = 0
+    while i < 300:
+        state_seq.append(state.state_impl)
+        key, key_act, key_step = jax.random.split(key, 3)
+        obs = jnp.expand_dims(state.obs, 0)        
+        action, _ = policy(obs, key_act)
+        state = env.step(key_step, state, action.squeeze())
+        reward_seq.append(state.reward)
+        if state.done:
+            break
+        i += 1
+
+    cum_rewards = jnp.cumsum(jnp.array(reward_seq))
+    vis = Visualizer(env.env_impl, env.env_params, state_seq, cum_rewards)
+    vis.animate(path)
+
+    return cum_rewards[-1], np.sum(cum_rewards)
 
 def rollout_true_return(env, policy, episode_length=1000, seed=0):
     """Roll out a policy in the true environment and compute avg/std returns."""
@@ -49,8 +79,9 @@ def run_training(
     output_dir: pathlib.Path,
 ):
     algos: Dict[str, object] = {
-        "TREX": TREX(),
+        # "TREX": TREX(),
         "CLASSIFIER_BC": CLASSIFIER_BC(num_evals=run_config.num_evals),
+        "IQL": IQL(),
         # TODO: add Offline RL algorithms here, e.g. "IQL": IQL(...)
     }
 
@@ -76,8 +107,10 @@ def run_training(
             env = dataset.env
             policy = make_policy(params, deterministic=True)
 
+            out_path = output_dir / f"{algo_name}_{ds_path.stem}.gif"
+
             # evaluate with ground-truth environment reward
-            avg_reward, std_reward = rollout_true_return(env, policy, seed=0)
+            avg_reward, std_reward = visualize(env, policy, out_path)
             print(avg_reward, std_reward)
 
             #out_path = output_dir / f"{algo_name}_{ds_path.stem}"
@@ -91,8 +124,8 @@ def run_training(
                     #"dataset_path": str(ds_path),
                     "algo": algo_name,
                     #add avg and std of acheived reward of that policy 
-                    "avg_reward": avg_reward,
-                    "std_reward": std_reward,
+                    "avg_reward": np.float64(avg_reward),
+                    "std_reward": np.float64(std_reward),
                     #"env": env_name,
                     #"params_path": str(out_path),
                     #"num_timesteps": run_config.num_timesteps,
