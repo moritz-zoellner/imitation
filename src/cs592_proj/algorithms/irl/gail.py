@@ -289,8 +289,12 @@ def make_discriminator_loss(
         Ds_pol = discriminator_network.apply(normalizer_params, discriminator_params, policy_data["observations"])
         D_pol = jax.vmap(lambda x, i: x.at[i].get())(Ds_pol, policy_data["action"])
 
+        eps = 1e-8
+        clipped_D_exp = jnp.clip(D_exp, eps, 1 - eps)
+        clipped_one_minus_D_pol = jnp.clip(1.0 - D_pol, eps, 1 - eps)
+
         # Binary cross entropy loss
-        loss_D = -jnp.mean(jnp.log(D_exp)) - jnp.mean(jnp.log(1.0 - D_pol))
+        loss_D = -jnp.mean(jnp.log(clipped_D_exp)) - jnp.mean(jnp.log(clipped_one_minus_D_pol))
         
         return loss_D
 
@@ -327,11 +331,17 @@ def make_policy_loss(
 
         # first, rewrite rewards
         Ds_pol = discriminator_apply(normalizer_params, discriminator_params, data.observation)
-        D_pol = jax.vmap(lambda x, i: x.at[i].get())(Ds_pol, data.action)
+
+        lookup_action = jax.vmap(jax.vmap(lambda x, i: x.at[i].get()))
+
+        D_pol = lookup_action(Ds_pol, data.action)
 
         # GAIL reward: encourages (s, a) that look like expert
-        new_reward = -jnp.log(1.0 - D_pol)
-        data._replace(reward=new_reward)
+        eps = 1e-8
+        clipped_one_minus_D_pol = jnp.clip(1.0 - D_pol, eps, 1 - eps)
+        new_reward = -jnp.log(clipped_one_minus_D_pol)
+
+        data = data._replace(reward=new_reward)
 
         policy_logits = policy_apply(
             normalizer_params, policy_params, data.observation
@@ -414,12 +424,12 @@ def _init_training_state(
         pv_optimizer: optax.GradientTransformation,
 ) -> TrainingState:
     """Inits the training state and replicates it over devices."""
-    key_policy, key_discriminator, key_policy = jax.random.split(key, 3)
+    key_policy, key_discriminator, key_policy, key_value = jax.random.split(key, 4)
     discriminator_params = gail_networks.discriminator_network.init(key_discriminator)
     discriminator_optimizer_state = discriminator_optimizer.init(discriminator_params)
 
     policy_params = gail_networks.policy_network.init(key_policy)
-    value_params = gail_networks.value_network.init(key_policy)
+    value_params = gail_networks.value_network.init(key_value)
 
     pv_optimizer_state = pv_optimizer.init((policy_params, value_params))
 
@@ -453,7 +463,7 @@ class GAIL:
     normalize_observations: bool = True
     learning_rate: float = 1e-4
     batch_size: int = 256
-    unroll_length: int = 8
+    unroll_length: int = 64
     grad_updates_per_step: int = 1
     num_eval_envs: int = 16
     episode_length: int = 1000
@@ -528,7 +538,7 @@ class GAIL:
         ) -> Tuple[Tuple[TrainingState, PRNGKey], Metrics]:
             training_state, key = carry
 
-            policy_samples_key, expert_samples_key, policy_update_key = jax.random.split(key, 3)
+            policy_samples_key, expert_samples_key, policy_update_key, key = jax.random.split(key, 4)
 
             size = jnp.array(policy_trajectories.observation.shape[:-1])
             size_len = size.shape[0]
@@ -558,11 +568,6 @@ class GAIL:
                 jnp.concatenate((expert_data["observations"], policy_data["observations"])),
                 pmap_axis_name=_PMAP_AXIS_NAME)
 
-            # training_state = training_state.replace(
-            #     normalizer_params=normalizer_params,
-            #     env_steps=training_state.env_steps + self.batch_size
-            # )
-
             d_loss, new_d_params, d_optimizer_state = discriminator_update(
                 training_state.discriminator_params,
                 normalizer_params,
@@ -570,7 +575,7 @@ class GAIL:
                 expert_data,
                 optimizer_state=training_state.discriminator_optimizer_state)
 
-            p_loss, new_p_params, p_optimizer_state = policy_update(
+            pv_loss, (new_policy_params, new_value_params), pv_optimizer_state = policy_update(
                 (training_state.policy_params, training_state.value_params),
                 normalizer_params,
                 new_d_params,
@@ -579,21 +584,20 @@ class GAIL:
                 optimizer_state=training_state.pv_optimizer_state)
 
             metrics = {
-                # 'v_loss': v_loss,
-                # 'q_loss': q_loss,
+                'd_loss': d_loss,
+                'pv_loss': pv_loss,
             }
 
-            # new_training_state = TrainingState(
-            #     q_optimizer_state=q_optimizer_state,
-            #     q_params=new_q_params,
-            #     target_q_params=new_target_q_params,
-            #     v_optimizer_state=v_optimizer_state,
-            #     v_params=new_v_params,
-            #     gradient_steps=training_state.gradient_steps + 1,
-            #     env_steps=training_state.env_steps,
-            #     normalizer_params=training_state.normalizer_params)
-            # return (new_training_state, key), metrics
-            return (training_state, key), metrics
+            new_training_state = TrainingState(
+                discriminator_optimizer_state=d_optimizer_state,
+                discriminator_params=new_d_params,
+                pv_optimizer_state=pv_optimizer_state,
+                policy_params=new_policy_params,
+                value_params=new_value_params,
+                gradient_steps=training_state.gradient_steps + 1,
+                env_steps=training_state.env_steps,
+                normalizer_params=normalizer_params)
+            return (new_training_state, key), metrics
 
         def training_step(
                 training_state: TrainingState,
