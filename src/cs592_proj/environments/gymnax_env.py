@@ -284,6 +284,9 @@ class GymnaxEnv(Env):
             unroll_length=episode_length,
         )[1]
 
+        # swap batch and trajectory dimension
+        data = jax.tree.map(lambda x: jnp.swapaxes(x, 0, 1), data)
+
         return {
             'observation': np.asarray(data.observation),
             'action': np.asarray(data.action),
