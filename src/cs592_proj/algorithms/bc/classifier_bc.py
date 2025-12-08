@@ -248,23 +248,24 @@ class CLASSIFIER_BC:
     deterministic_eval: bool = True
     # checkpoint_logdir: Optional[str] = None
 
-    # def get_make_policy_fn(self, *, env, **_):
-    #     training_env = env.wrap_for_training(episode_length=self.episode_length, action_repeat=self.action_repeat)
-    #     obs_size = training_env.obs_size
+    def get_make_policy_fn(self, *, dataset, **_):
+        env = dataset.get_env()
+        training_env = env.wrap_for_training(episode_length=self.episode_length, action_repeat=self.action_repeat)
+        obs_size = training_env.obs_size
 
-    #     normalize_fn = lambda x, y: x
-    #     if self.normalize_observations:
-    #         normalize_fn = running_statistics.normalize
+        normalize_fn = lambda x, y: x
+        if self.normalize_observations:
+            normalize_fn = running_statistics.normalize
 
-    #     network_factory = make_dq_networks
-    #     dq_network = network_factory(
-    #         observation_size=obs_size,
-    #         n_actions=env.n_actions,
-    #         preprocess_observations_fn=normalize_fn,
-    #         hidden_layer_sizes=self.hidden_layer_sizes,
-    #     )
-    #     make_policy = get_make_policy_fn(dq_network, n_actions=env.n_actions)
-    #     return make_policy
+        network_factory = make_classifier
+        classifier = network_factory(
+            observation_size=obs_size,
+            n_actions=env.n_actions,
+            preprocess_observations_fn=normalize_fn,
+            hidden_layer_sizes=self.hidden_layer_sizes,
+        )
+        make_policy = get_make_policy_fn(classifier)
+        return make_policy
 
     def train_fn(self, *, run_config, dataset, progress_fn, **_):
         """Classifier BC training"""
