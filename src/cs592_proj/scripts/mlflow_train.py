@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--dataset', type=str, help='Name of dataset to use for training.')
 
     # run config arguments
-    parser.add_argument('--num_timesteps', type=int, default=1000000, help='Number of timesteps allowed for training.')
+    parser.add_argument('--num_timesteps', type=int, default=15000000, help='Number of timesteps allowed for training.')
     parser.add_argument('--num_evals', type=int, default=16, help='Number of evaluations to perform and log during training.')
     parser.add_argument('--seed', type=int, default=0, help='Seed for randomness in training.')
     args = parser.parse_args()
