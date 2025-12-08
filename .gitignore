@@ -1,3 +1,6 @@
+src/cs592_proj/custom_datasets/*
+mlruns
+
 # Project-specific
 .#*
 *.html
