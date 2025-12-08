@@ -87,7 +87,7 @@ def run_training(
 
     index = []  # list of metadata entries for all (dataset, algo) runs
 
-    for ds_path in [dataset_paths[1], dataset_paths[2]]:
+    for ds_path in dataset_paths:
         print(f"\n=== Processing dataset: {ds_path} ===")
 
         # Adjust this line if you want a different loader (e.g., CustomDatasetImpl.from_npz)
