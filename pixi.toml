@@ -9,6 +9,7 @@ version = "0.1.0"
 
 [dependencies]
 python = "3.10.*"
+debugpy = ">=1.8.17,<2"
 
 [pypi-dependencies]
 cs592-proj = { path = ".", editable = true }

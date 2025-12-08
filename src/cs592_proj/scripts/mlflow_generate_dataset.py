@@ -12,11 +12,11 @@ from brax.io import model
 
 from gymnax.visualize import Visualizer
 
-from imitation.algorithms.run_config import RunConfig
+from cs592_proj.algorithms.run_config import RunConfig
 
-from imitation import algorithms
-from imitation import environments
-from imitation import datasets
+from cs592_proj import algorithms
+from cs592_proj import environments
+from cs592_proj import datasets
 
 import mlflow
 
@@ -37,6 +37,7 @@ class ArgTypeMixin(Enum):
 
 class PoliciesChoice(ArgTypeMixin, Enum):
     best = "best"
+    custom = "custom" # for now, custom just chooses all runs
 
 def main():
     parser = argparse.ArgumentParser(description="Dataset generation script for trained agents.")
@@ -91,21 +92,39 @@ def main():
         logged_model_path = f'runs:/{args.id}/policy_params'
         real_path = mlflow.artifacts.download_artifacts(logged_model_path)
         params = model.load_params(real_path)
-        policies = [make_policy(params)]
+        policies = {"best": make_policy(params)}
+    elif args.policies == PoliciesChoice.custom:
+        # get custom runs
+        logged_model_base_path = f'runs:/{args.id}/'
+        real_base_path = mlflow.artifacts.download_artifacts(logged_model_base_path)
+        directory = Path(real_base_path)
+        policies = {}
+        for file in directory.iterdir():
+            params = model.load_params(str(file))
+            policies[str(file)] = make_policy(params)
     else:
         raise NotImplementedError()
 
-    for policy in policies:
+    for policy_name, policy in policies.items():
         rollouts: dict[str, np.ndarray] = env.rollout(policy, n_episodes=args.episodes_per_policy, episode_length=100, seed=0)
 
-    # create parent directory
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+        # Create unique filename for each policy
+        if len(policies) > 1:
+            output_path = args.output.parent / f"{args.output.stem}{policy_name}{args.output.suffix}"
+        else:
+            output_path = args.output
 
-    with open(args.output, "wb") as f:
-        np.savez(f, **rollouts)
+        # create parent directory
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, "wb") as f:
+            np.savez(f, **rollouts)
+            
+
+
 
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("file:///home/tassos/.local/share/mlflow")
+    mlflow.set_tracking_uri("file:///home/nicomiguel/CS592/local_data")
     mlflow.set_experiment("cs592-il-training")
 
     main()
