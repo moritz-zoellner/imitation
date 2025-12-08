@@ -54,12 +54,12 @@ def visualize(env, policy, path):
 
 def rollout_true_return(env, policy, episode_length=1000, seed=0):
     """Roll out a policy in the true environment and compute avg/std returns."""
-    n_episodes = 1
+    n_episodes = 20
     rollouts = env.rollout(
         policy, n_episodes=n_episodes, episode_length=episode_length, seed=seed
     )
     rewards = np.asarray(rollouts["reward"])
-    episode_returns = rewards.sum(axis=0)
+    episode_returns = rewards.sum(axis=1)
     print(episode_returns)
     reward_avg = float(np.mean(episode_returns))
     reward_std = float(np.std(episode_returns))
@@ -79,15 +79,15 @@ def run_training(
     output_dir: pathlib.Path,
 ):
     algos: Dict[str, object] = {
-        # "TREX": TREX(),
-        "CLASSIFIER_BC": CLASSIFIER_BC(num_evals=run_config.num_evals),
-        "IQL": IQL(),
-        # TODO: add Offline RL algorithms here, e.g. "IQL": IQL(...)
+        "TREX": algorithms.TREX,
+        "CLASSIFIER_BC": algorithms.CLASSIFIER_BC,
+        "IQL": algorithms.IQL,
+        "GAIL": algorithms.GAIL
     }
 
     index = []  # list of metadata entries for all (dataset, algo) runs
 
-    for ds_path in dataset_paths:
+    for ds_path in [dataset_paths[1], dataset_paths[2]]:
         print(f"\n=== Processing dataset: {ds_path} ===")
 
         # Adjust this line if you want a different loader (e.g., CustomDatasetImpl.from_npz)
@@ -96,21 +96,22 @@ def run_training(
             env_name=env_name,
         )
 
-        for algo_name, algo in algos.items():
+        for algo_name, algoClass in algos.items():
             print(f"Running {algo_name} on {ds_path.name}...")
 
+            algo = algoClass()
             make_policy, params, metrics = algo.train_fn(
                 run_config=run_config,
                 dataset=dataset,
                 progress_fn=progress_logger(f"{ds_path.name}:{algo_name}"),
             )
             env = dataset.env
-            policy = make_policy(params, deterministic=True)
+            policy = make_policy(params)
 
             out_path = output_dir / f"{algo_name}_{ds_path.stem}.gif"
 
             # evaluate with ground-truth environment reward
-            avg_reward, std_reward = visualize(env, policy, out_path)
+            avg_reward, std_reward = rollout_true_return(env, policy)
             print(avg_reward, std_reward)
 
             #out_path = output_dir / f"{algo_name}_{ds_path.stem}"

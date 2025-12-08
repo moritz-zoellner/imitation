@@ -24,7 +24,6 @@ def make_ranked_pairs(trajs, n_pairs=20000, frag_len=25, rng=None, tie_margin=0.
     # flatten all fragments
     frags = []
     for tr in trajs:
-        print(tr)
         frags += make_fragments(tr, frag_len, rng)
     frags = [(o.astype(np.float32), r.astype(np.float32)) for o,r in frags]
     # sample pairs + label by true return
@@ -92,7 +91,7 @@ class LearnedRewardEnv(gym.Wrapper):
 class TREX:
 
     #TODO: extract all parameters for training 
-    num_epochs = 30
+    num_epochs = 15
     learned_reward_timesteps = 200000
     episode_length: int = 1000
     action_repeat: int = 1
