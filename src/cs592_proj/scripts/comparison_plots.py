@@ -168,7 +168,7 @@ def main():
     parser.add_argument(
         "--num-timesteps",
         type=int,
-        default=1000000,
+        default=1200000,
         help="Training timesteps per run.",
     )
     parser.add_argument(
