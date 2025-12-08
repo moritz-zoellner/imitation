@@ -24,6 +24,7 @@ def make_ranked_pairs(trajs, n_pairs=20000, frag_len=25, rng=None, tie_margin=0.
     # flatten all fragments
     frags = []
     for tr in trajs:
+        print(tr)
         frags += make_fragments(tr, frag_len, rng)
     frags = [(o.astype(np.float32), r.astype(np.float32)) for o,r in frags]
     # sample pairs + label by true return
@@ -91,13 +92,11 @@ class LearnedRewardEnv(gym.Wrapper):
 class TREX:
 
     #TODO: extract all parameters for training 
-    num_epochs = 300
+    num_epochs = 30
     learned_reward_timesteps = 200000
     episode_length: int = 1000
     action_repeat: int = 1
     policy_learning_algo: str = "DQN"
-
-    ENV_NAME = 'CartPole-v1'
 
     # TODO:  different dataset object then tassos, currently just an array of trajectoryWithRew objects
     def train_fn(self, *, run_config, dataset, progress_fn, **_):
@@ -122,8 +121,12 @@ class TREX:
         reward_net = RewardMLP(obs_dim)
         opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
 
-        #TODO: cpu is still hardcoded
-        device = torch.device("cpu"); reward_net.to(device)
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+            print("CUDA is available. Using GPU.")
+        else:
+            device = torch.device("cpu")
+            print("CUDA is not available. Using CPU.")
 
         #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
@@ -163,6 +166,7 @@ class TREX:
                 "train_loss": train_loss,
                 "val_loss": val_loss
             }
+            print(metrics) 
 
         #-------------- Building a policy from trained reward net ------------
         

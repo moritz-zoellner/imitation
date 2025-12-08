@@ -26,6 +26,8 @@ def main():
     parser.add_argument('--seed', type=int, default=0, help='Seed for randomness in training.')
     args = parser.parse_args()
 
+    print(args)
+
     if hasattr(algorithms, args.algo):
         AlgoClass = getattr(algorithms, args.algo)
     else:

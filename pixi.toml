@@ -13,6 +13,7 @@ debugpy = ">=1.8.17,<2"
 
 [pypi-dependencies]
 cs592-proj = { path = ".", editable = true }
+jupyter="*"
 jax = { version = ">=0.4.34, <0.4.38", extras = ["cuda12"] }
 mlflow = ">=3.4.0, <4"
 ml-collections = ">=1.1.0, <2"

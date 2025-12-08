@@ -1,0 +1,206 @@
+[
+  {
+    "dataset_name": "policy_params.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 18.0,
+    "std_reward": 869.0
+  },
+  {
+    "dataset_name": "policy_params.npz",
+    "algo": "IQL",
+    "avg_reward": 3.0,
+    "std_reward": 18.0
+  },
+  {
+    "dataset_name": "policy_params_0.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 1.0,
+    "std_reward": 18.0
+  },
+  {
+    "dataset_name": "policy_params_0.npz",
+    "algo": "IQL",
+    "avg_reward": 4.0,
+    "std_reward": 79.0
+  },
+  {
+    "dataset_name": "policy_params_10000128.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 23.0,
+    "std_reward": 1309.0
+  },
+  {
+    "dataset_name": "policy_params_10000128.npz",
+    "algo": "IQL",
+    "avg_reward": 4.0,
+    "std_reward": 57.0
+  },
+  {
+    "dataset_name": "policy_params_13333504.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 22.0,
+    "std_reward": 1263.0
+  },
+  {
+    "dataset_name": "policy_params_13333504.npz",
+    "algo": "IQL",
+    "avg_reward": 5.0,
+    "std_reward": 113.0
+  },
+  {
+    "dataset_name": "policy_params_16666880.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 31.0,
+    "std_reward": 5053.0
+  },
+  {
+    "dataset_name": "policy_params_16666880.npz",
+    "algo": "IQL",
+    "avg_reward": 8.0,
+    "std_reward": 323.0
+  },
+  {
+    "dataset_name": "policy_params_20000256.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 21.0,
+    "std_reward": 1087.0
+  },
+  {
+    "dataset_name": "policy_params_20000256.npz",
+    "algo": "IQL",
+    "avg_reward": 2.0,
+    "std_reward": 17.0
+  },
+  {
+    "dataset_name": "policy_params_23333632.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 21.0,
+    "std_reward": 1093.0
+  },
+  {
+    "dataset_name": "policy_params_23333632.npz",
+    "algo": "IQL",
+    "avg_reward": 5.0,
+    "std_reward": 164.0
+  },
+  {
+    "dataset_name": "policy_params_26667008.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 17.0,
+    "std_reward": 706.0
+  },
+  {
+    "dataset_name": "policy_params_26667008.npz",
+    "algo": "IQL",
+    "avg_reward": 0.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_30000384.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 19.0,
+    "std_reward": 1070.0
+  },
+  {
+    "dataset_name": "policy_params_30000384.npz",
+    "algo": "IQL",
+    "avg_reward": 1.0,
+    "std_reward": 1.0
+  },
+  {
+    "dataset_name": "policy_params_3333376.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 12.0,
+    "std_reward": 514.0
+  },
+  {
+    "dataset_name": "policy_params_3333376.npz",
+    "algo": "IQL",
+    "avg_reward": 0.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_33333760.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 15.0,
+    "std_reward": 581.0
+  },
+  {
+    "dataset_name": "policy_params_33333760.npz",
+    "algo": "IQL",
+    "avg_reward": 0.0,
+    "std_reward": 0.0
+  },
+  {
+    "dataset_name": "policy_params_36667136.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 20.0,
+    "std_reward": 1085.0
+  },
+  {
+    "dataset_name": "policy_params_36667136.npz",
+    "algo": "IQL",
+    "avg_reward": 5.0,
+    "std_reward": 190.0
+  },
+  {
+    "dataset_name": "policy_params_40000512.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 19.0,
+    "std_reward": 880.0
+  },
+  {
+    "dataset_name": "policy_params_40000512.npz",
+    "algo": "IQL",
+    "avg_reward": 2.0,
+    "std_reward": 15.0
+  },
+  {
+    "dataset_name": "policy_params_43333888.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 24.0,
+    "std_reward": 1977.0
+  },
+  {
+    "dataset_name": "policy_params_43333888.npz",
+    "algo": "IQL",
+    "avg_reward": 2.0,
+    "std_reward": 17.0
+  },
+  {
+    "dataset_name": "policy_params_46667264.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 23.0,
+    "std_reward": 1326.0
+  },
+  {
+    "dataset_name": "policy_params_46667264.npz",
+    "algo": "IQL",
+    "avg_reward": 6.0,
+    "std_reward": 109.0
+  },
+  {
+    "dataset_name": "policy_params_50000640.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 18.0,
+    "std_reward": 869.0
+  },
+  {
+    "dataset_name": "policy_params_50000640.npz",
+    "algo": "IQL",
+    "avg_reward": 3.0,
+    "std_reward": 18.0
+  },
+  {
+    "dataset_name": "policy_params_6666752.npz",
+    "algo": "CLASSIFIER_BC",
+    "avg_reward": 25.0,
+    "std_reward": 2368.0
+  },
+  {
+    "dataset_name": "policy_params_6666752.npz",
+    "algo": "IQL",
+    "avg_reward": 3.0,
+    "std_reward": 18.0
+  }
+]
