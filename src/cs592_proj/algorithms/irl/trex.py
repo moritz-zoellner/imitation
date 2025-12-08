@@ -24,6 +24,7 @@ def make_ranked_pairs(trajs, n_pairs=20000, frag_len=25, rng=None, tie_margin=0.
     # flatten all fragments
     frags = []
     for tr in trajs:
+        print(tr)
         frags += make_fragments(tr, frag_len, rng)
     frags = [(o.astype(np.float32), r.astype(np.float32)) for o,r in frags]
     # sample pairs + label by true return
@@ -120,8 +121,12 @@ class TREX:
         reward_net = RewardMLP(obs_dim)
         opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
 
-        #TODO: cpu is still hardcoded
-        device = torch.device("cuda"); reward_net.to(device)
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+            print("CUDA is available. Using GPU.")
+        else:
+            device = torch.device("cpu")
+            print("CUDA is not available. Using CPU.")
 
         #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
