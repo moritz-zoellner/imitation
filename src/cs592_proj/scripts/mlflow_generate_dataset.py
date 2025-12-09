@@ -105,20 +105,36 @@ def main():
     else:
         raise NotImplementedError()
 
+    episode_length_list = np.arange(5, 150, 10)
+
     for policy_name, policy in policies.items():
-        rollouts: dict[str, np.ndarray] = env.rollout(policy, n_episodes=args.episodes_per_policy, episode_length=100, seed=0)
+        for episode_length in episode_length_list:
+            rollouts: dict[str, np.ndarray] = env.rollout(policy, n_episodes=args.episodes_per_policy, episode_length=episode_length, seed=0)
 
-        # Create unique filename for each policy
-        if len(policies) > 1:
-            output_path = args.output.parent / f"{args.output.stem}{policy_name}{args.output.suffix}"
-        else:
-            output_path = args.output
+            # # Create unique filename for each policy
+            # if len(policies) > 1:
+            #     output_path = args.output.parent / f"{args.output.stem}{policy_name}{args.output.suffix}"
+            # else:
+            #     output_path = args.output
+                    # Create unique filename for each policy and episode length
+            if len(policies) > 1 and len(episode_length_list) > 1:
+                # Multiple policies and episode lengths
+                output_path = args.output.parent / f"{args.output.stem}_{policy_name}_{episode_length}{args.output.suffix}"
+            elif len(policies) > 1:
+                # Multiple policies, single episode length
+                output_path = args.output.parent / f"{args.output.stem}_{policy_name}{args.output.suffix}"
+            elif len(episode_length_list) > 1:
+                # Single policy, multiple episode lengths
+                output_path = args.output.parent / f"{args.output.stem}_{episode_length}{args.output.suffix}"
+            else:
+                # Single policy, single episode length
+                output_path = args.output
 
-        # create parent directory
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+            # create parent directory
+            output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, "wb") as f:
-            np.savez(f, **rollouts)
+            with open(output_path, "wb") as f:
+                np.savez(f, **rollouts)
             
 
 

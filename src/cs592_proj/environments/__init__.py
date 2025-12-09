@@ -10,6 +10,7 @@ from .ogbench_env import OGBenchEnv
 four_rooms = GymnaxEnv.from_name("FourRooms-misc")
 space_invaders = GymnaxEnv.from_name("SpaceInvaders-MinAtar")
 reacher = GymnaxEnv.from_name("Reacher-misc")
+breakout = GymnaxEnv.from_name("Breakout-MinAtar")
 
 # BRAX
 

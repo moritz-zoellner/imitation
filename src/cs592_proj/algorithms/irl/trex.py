@@ -118,7 +118,6 @@ class TREX:
         obs_dim = eval_env.obs_size
 
         reward_net = RewardMLP(obs_dim)
-        opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
 
         if torch.cuda.is_available():
             device = torch.device("cuda")
@@ -127,6 +126,9 @@ class TREX:
             device = torch.device("cpu")
             print("CUDA is not available. Using CPU.")
 
+        reward_net = reward_net.to(device)
+        
+        opt = torch.optim.Adam(reward_net.parameters(), lr=3e-4)
         #--------------- Training the reward net -------------------
         def pred_frag_return(obs_seq):       # (B, T, D) -> (B,)
             B,T,D = obs_seq.shape
