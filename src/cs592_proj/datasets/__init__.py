@@ -20,4 +20,4 @@ AntMazeMediumNavigateV0 = OGBenchDataset.from_name('antmaze-medium-navigate-v0')
 
 
 
-suboptimal_dataset = CustomDataset.from_resource_path('custom_datasets/policy_params_0.npz', env_name="space_invaders")
+#suboptimal_dataset = CustomDataset.from_resource_path('custom_datasets/policy_params.npz', env_name="space_invaders")

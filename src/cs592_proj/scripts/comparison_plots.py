@@ -79,10 +79,10 @@ def run_training(
     output_dir: pathlib.Path,
 ):
     algos: Dict[str, object] = {
-        "TREX": algorithms.TREX,
-        "CLASSIFIER_BC": algorithms.CLASSIFIER_BC,
+        #"TREX": algorithms.TREX,
+        #"CLASSIFIER_BC": algorithms.CLASSIFIER_BC,
         "IQL": algorithms.IQL,
-        "GAIL": algorithms.GAIL
+        #"GAIL": algorithms.GAIL
     }
 
     index = []  # list of metadata entries for all (dataset, algo) runs
@@ -169,7 +169,7 @@ def main():
     parser.add_argument(
         "--num-timesteps",
         type=int,
-        default=1200000,
+        default=10000000,
         help="Training timesteps per run.",
     )
     parser.add_argument(

@@ -121,7 +121,7 @@ def main():
             # generate flip mask
             flip_mask = rng.random(actions.shape) < float(noise_amount)
 
-            random_actions = rng.integers(0, env.n_actions, size=actions.shape)
+            random_actions = rng.integers(0, env.n_actions, size=actions.shape) 
             noisy_actions = np.where(flip_mask, random_actions, actions)
 
             # replace existing actions with new actions
