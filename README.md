@@ -6,8 +6,8 @@
 
 ## Generate Dataset
 
-    python -m imitation.scripts.mlflow_generate_dataset --id b355a8cc377c46318f3a3e0639e040ba --policies best --output "./custom-datasets/dqn-space-invaders.npz"
+    python -m cs592_proj.scripts.mlflow_generate_dataset --id b355a8cc377c46318f3a3e0639e040ba --policies best --output "./custom-datasets/dqn-space-invaders.npz"
 
 ## Visualize Policy
 
-    python -m imitation.scripts.mlflow_visualize --id b355a8cc377c46318f3a3e0639e040ba
+    python -m cs592_proj.scripts.mlflow_visualize --id b355a8cc377c46318f3a3e0639e040ba
